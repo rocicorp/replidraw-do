@@ -4,9 +4,7 @@ import { step, TestSettings, Until, By } from "@flood/element";
 export default () => {
   step("Test: MouseMove", async (browser) => {
     console.log("LoadPage");
-    await browser.visit(
-      "https://reflect-draw-cesar-load-test.vercel.app/d/QRT19V"
-    );
+    await browser.visit("https://reflect-draw-cesar-load-test.vercel.app/d/Ly8_2K")
     for (let i = 0; i < 60; i++) {
       const randomX = Math.floor(Math.random() * 1024);
       const randomY = Math.floor(Math.random() * 768);

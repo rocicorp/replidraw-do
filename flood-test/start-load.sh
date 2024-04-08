@@ -8,7 +8,7 @@ PID_FILE="pids.txt"
 
 # Loop to execute the command 15 times in the background, disabling all output
 for i in {1..15}; do
-    npx element run monday-canvas-load.ts >/dev/null 2>&1 &
+    npx element run reflect-draw-load-test-2.ts >/dev/null 2>&1 &
     echo $! >> "$PID_FILE"
 done
 

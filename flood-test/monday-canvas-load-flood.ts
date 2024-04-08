@@ -30,7 +30,7 @@ export default () => {
 
   step("Start", async (browser) => {
     await browser.visit(
-      "https://app.workcanvas.com/d/ATKEZArO6WpLWHKba9Qg8PnPUq1OFvbq"
+      "https://app-staging.workcanvas.com/d/ATKEZArO6WpLWHKba9Qg8PnPUq1OFvbq"
     );
   });
 
@@ -46,13 +46,13 @@ export default () => {
     await btnSubmit.click();
   });
 
-  for (var i = 1; i < 60; i++) {
-    step("Move cursor - " + i, async (browser) => {
-      for (let i = 0; i < 5; i++) {
+ //for (var i = 1; i < 60; i++) {
+    step("Move cursor - " , async (browser) => {
+      for (let i = 0; i < 60; i++) {
         const randomX = Math.floor(Math.random() * 1024);
         const randomY = Math.floor(Math.random() * 768);
         await browser.page.mouse.move(randomX, randomY, { steps: 100 });
       }
     });
-  }
+  //}
 };

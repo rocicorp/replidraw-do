@@ -22,25 +22,19 @@ export default () => {
   });
 
   step("Start", async (browser) => {
-    await browser.visit("https://reflect-draw-cesar-load-test.vercel.app/d/QRT19V");
+    //await browser.visit("https://reflect-draw-cesar-load-test.vercel.app/d/QRT19V");
+    await browser.visit("https://reflect-draw-cesar-load-test.vercel.app/d/JY_ZU8");
   });
 
 
-  for (var i = 1; i < 300; i++) {
+  for (var i = 1; i < 10; i++) {
     //waits a while viewing the video stream
     step('Move cursor - ' + i, async (browser) => {
 
-      const rectangles = await browser.findElements(By.css("svg > rect"));
-      console.log(rectangles);
-
-      for (let rect of shuffleArray(rectangles)) {
-        const center = await rect.centerPoint();
-        await browser.page.mouse.move(center[0], center[1]);
-        
-        // Randomize the x and y coordinates within a range
-        const randomX = Math.floor(Math.random() * 20) + 800;
-        const randomY = Math.floor(Math.random() * 20) + 600;
-        await browser.page.mouse.move(randomX, randomY, { steps: 100 } );
+      for (let i = 0; i < 60; i++) {
+        const randomX = Math.floor(Math.random() * 1024);
+        const randomY = Math.floor(Math.random() * 768);
+        await browser.page.mouse.move(randomX, randomY, { steps: 100 });
       }
 
       //await browser.wait(20)
@@ -49,10 +43,3 @@ export default () => {
   } 
 };
 
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]]; 
-  }
-  return array;
-}
