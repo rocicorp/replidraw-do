@@ -22,15 +22,13 @@ export default () => {
   });
 
   step("Start", async (browser) => {
-    //await browser.visit("https://reflect-draw-cesar-load-test.vercel.app/d/QRT19V");
-    await browser.visit("https://reflect-draw-cesar-load-test.vercel.app/d/JY_ZU8");
+    await browser.visit("https://reflect-draw-cesar-load-test.vercel.app/d/cloud-flare-stress-test");
   });
 
 
   for (var i = 1; i < 10; i++) {
     //waits a while viewing the video stream
     step('Move cursor - ' + i, async (browser) => {
-
       for (let i = 0; i < 60; i++) {
         const randomX = Math.floor(Math.random() * 1024);
         const randomY = Math.floor(Math.random() * 768);
