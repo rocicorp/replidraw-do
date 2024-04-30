@@ -1,27 +1,21 @@
 import WebSocket from "ws";
 import { nanoid } from "nanoid";
 
-function randomEmoji() {
-  const range = [0x1f600, 0x1f64f];
-  const codePoint =
-    Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
-  return String.fromCodePoint(codePoint);
-}
+const roomID = "r1";
+const baseURL = "ws://127.0.0.1:8080";
+const numClients = 10;
 
-function randomColor() {
-  const r = Math.floor(Math.random() * 256);
-  const g = Math.floor(Math.random() * 256);
-  const b = Math.floor(Math.random() * 256);
-  return `rgb(${r}, ${g}, ${b})`;
+for (let i = 0; i < numClients; i++) {
+  runClient();
 }
 
 function runClient() {
   const clientID = nanoid();
   const clientGroupID = nanoid();
-  const roomID = "r1";
-  const userID = "u1";
+  const userID = nanoid();
   const wsid = nanoid();
-  const url = `ws://127.0.0.1:8080/api/sync/v1/connect?clientGroupID=${clientGroupID}&clientID=${clientID}&roomID=${roomID}&userID=${userID}&baseCookie=0&lmid=0&ts=${Date.now()}&wsid=${wsid}`;
+  const ts = performance.now();
+  const url = `${baseURL}/api/sync/v1/connect?clientGroupID=${clientGroupID}&clientID=${clientID}&roomID=${roomID}&userID=${userID}&baseCookie=0&lmid=0&ts=${ts}&wsid=${wsid}`;
   console.log(`Connecting to ${url}`);
   const ws = new WebSocket(url);
   ws.on("error", (e) => {
@@ -43,22 +37,40 @@ function runClient() {
   });
 }
 
-function initClient(ws, clientGroupID, clientID) {
-  const mutation = {
-    name: "initClientState",
-    id: 1,
-    timestamp: performance.now(),
-    clientID,
-    args: {
-      cursor: null,
-      overID: "",
-      selectedID: "",
-      userInfo: {
-        avatar: randomEmoji(),
-        color: randomColor(),
-        name: `user 0`,
-      },
+async function initClient(ws, clientGroupID, clientID) {
+  sendMutation(ws, clientGroupID, clientID, "initClientState", 1, {
+    cursor: null,
+    overID: "",
+    selectedID: "",
+    userInfo: {
+      avatar: randomEmoji(),
+      color: randomColor(),
+      name: `user`,
     },
+  });
+
+  const max = 800;
+  const y = Math.round(Math.random() * max);
+  let x = Math.round(Math.random() * max);
+
+  for (let i = 2; ; i++) {
+    sendMutation(ws, clientGroupID, clientID, "setCursor", i, {
+      x,
+      y,
+    });
+    x = (x + 1) % max;
+    await sleep(16);
+  }
+}
+
+function sendMutation(ws, clientGroupID, clientID, name, id, args) {
+  const timestamp = performance.now();
+  const mutation = {
+    name,
+    id,
+    timestamp,
+    clientID,
+    args,
   };
 
   const msg = [
@@ -68,7 +80,7 @@ function initClient(ws, clientGroupID, clientID) {
       pushVersion: 1,
       requestID: nanoid(),
       schemaVersion: "",
-      timestamp: performance.now(),
+      timestamp,
       mutations: [mutation],
     },
   ];
@@ -77,4 +89,20 @@ function initClient(ws, clientGroupID, clientID) {
   ws.send(JSON.stringify(msg));
 }
 
-runClient();
+function randomEmoji() {
+  const range = [0x1f600, 0x1f64f];
+  const codePoint =
+    Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
+  return String.fromCodePoint(codePoint);
+}
+
+function randomColor() {
+  const r = Math.floor(Math.random() * 256);
+  const g = Math.floor(Math.random() * 256);
+  const b = Math.floor(Math.random() * 256);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
