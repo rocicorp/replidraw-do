@@ -1,15 +1,19 @@
 import WebSocket from "ws";
 import { nanoid } from "nanoid";
+import humanizer from "humanize-duration";
 
 const roomID = "r1";
-const baseURL = "ws://127.0.0.1:8080";
-const numClients = 10;
+const baseURL =
+  process.env.SOCKET_BASE_URL ??
+  "wss://cesar-load-test-tail-debug.replicache.workers.dev";
+const numClients = 15;
 
 for (let i = 0; i < numClients; i++) {
   runClient();
 }
 
 function runClient() {
+  const startTime = Date.now();
   const clientID = nanoid();
   const clientGroupID = nanoid();
   const userID = nanoid();
@@ -18,8 +22,23 @@ function runClient() {
   const url = `${baseURL}/api/sync/v1/connect?clientGroupID=${clientGroupID}&clientID=${clientID}&roomID=${roomID}&userID=${userID}&baseCookie=0&lmid=0&ts=${ts}&wsid=${wsid}`;
   console.log(`Connecting to ${url}`);
   const ws = new WebSocket(url);
+  const testState = { stopped: false };
+
+  function stopTest() {
+    console.log("Stopping test...");
+    testState.stopped = true;
+    const elapsed = Date.now() - startTime;
+    console.log(`Client ${clientID} stopped after ${humanizer(elapsed)}`);
+  }
+
+  ws.on("close", () => {
+    console.log(`client ${clientID} - web socket closed`);
+    stopTest();
+  });
+
   ws.on("error", (e) => {
-    console.log("Web socket error", e);
+    console.log(`client ${clientID} - web socket error: ${e}`);
+    stopTest();
   });
   ws.on("message", (data) => {
     const str = data.toString();
@@ -27,8 +46,7 @@ function runClient() {
     const [type, ...body] = msg;
     switch (type) {
       case "connected":
-        console.log("Connected", body);
-        initClient(ws, clientGroupID, clientID);
+        initClient(ws, testState, clientGroupID, clientID);
         break;
       case "error":
         console.log("Server sent error", body);
@@ -37,7 +55,7 @@ function runClient() {
   });
 }
 
-async function initClient(ws, clientGroupID, clientID) {
+async function initClient(ws, testState, clientGroupID, clientID) {
   sendMutation(ws, clientGroupID, clientID, "initClientState", 1, {
     cursor: null,
     overID: "",
@@ -49,16 +67,23 @@ async function initClient(ws, clientGroupID, clientID) {
     },
   });
 
+  console.log("Running mutations for client", clientID);
+
   const max = 800;
   const y = Math.round(Math.random() * max);
   let x = Math.round(Math.random() * max);
 
   for (let i = 2; ; i++) {
+    if (testState.stopped) {
+      break;
+    }
+
     sendMutation(ws, clientGroupID, clientID, "setCursor", i, {
       x,
       y,
     });
     x = (x + 1) % max;
+
     await sleep(16);
   }
 }
@@ -85,7 +110,6 @@ function sendMutation(ws, clientGroupID, clientID, name, id, args) {
     },
   ];
 
-  console.log("Sending", JSON.stringify(msg));
   ws.send(JSON.stringify(msg));
 }
 

@@ -28,6 +28,7 @@
     "zod": "^3.11.6"
   },
   "devDependencies": {
+    "humanize-duration": "^3.32.0",
     "ws": "^8.17.0"
   }
 }
