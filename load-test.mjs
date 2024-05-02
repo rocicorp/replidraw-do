@@ -18,7 +18,7 @@ function runClient() {
   const clientGroupID = nanoid();
   const userID = nanoid();
   const wsid = nanoid();
-  const ts = performance.now();
+  const ts = Date.now();
   const url = `${baseURL}/api/sync/v1/connect?clientGroupID=${clientGroupID}&clientID=${clientID}&roomID=${roomID}&userID=${userID}&baseCookie=0&lmid=0&ts=${ts}&wsid=${wsid}`;
   console.log(`Connecting to ${url}`);
   const ws = new WebSocket(url);
@@ -89,7 +89,7 @@ async function initClient(ws, testState, clientGroupID, clientID) {
 }
 
 function sendMutation(ws, clientGroupID, clientID, name, id, args) {
-  const timestamp = performance.now();
+  const timestamp = Date.now();
   const mutation = {
     name,
     id,
@@ -110,6 +110,7 @@ function sendMutation(ws, clientGroupID, clientID, name, id, args) {
     },
   ];
 
+  console.log("sending", JSON.stringify(msg));
   ws.send(JSON.stringify(msg));
 }
 
