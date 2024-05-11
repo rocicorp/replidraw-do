@@ -6,7 +6,8 @@ const roomID = "r1";
 const baseURL =
   process.env.SOCKET_BASE_URL ??
   "wss://cesar-load-test-tail-debug.replicache.workers.dev";
-const numClients = 15;
+const numClients = 45;
+console.log("running", numClients, "clients");
 
 for (let i = 0; i < numClients; i++) {
   runClient();

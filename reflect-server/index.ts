@@ -4,6 +4,7 @@ import { serverMutators, M } from "../src/datamodel/mutators.js";
 function makeOptions(): ReflectServerOptions<M> {
   return {
     mutators: serverMutators,
+    maxMutationsPerTurn: 1000,
   };
 }
 
